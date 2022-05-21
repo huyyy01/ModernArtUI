@@ -1,0 +1,40 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "course.lab.modernartui"
+        minSdkVersion 18
+        targetSdkVersion 30
+        versionCode System.getenv("TRAVIS_BUILD_NUMBER") as Integer ?: 1
+        versionName "1.0.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+android.applicationVariants.all { variant ->
+
+    task("generate${variant.name}Javadoc", type: Javadoc) {
+        title = "Modern Art UI $versionName API"
+        description "Generates Javadoc for $variant.name."
+        source = variant.javaCompile.source
+        ext.androidJar =
+                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        options.links("http://docs.oracle.com/javase/7/docs/api/");
+        options.linksOffline("http://d.android.com/reference/", "${android.sdkDirectory}/docs/reference");
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+    }
+}
+
+dependencies {
+
+}
